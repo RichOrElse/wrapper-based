@@ -4,6 +4,14 @@ module WrapperBased
       where.each { |role, player| instance_variable_set :"@#{role}", player }
     end
 
+    def to_proc
+      method(:call).to_proc
+    end
+
+    def [](*args, &block)
+      call(*args, &block)
+    end
+
     class << self
       def [](**role_cast, &block)
         context_class = Class.new(self, &block)

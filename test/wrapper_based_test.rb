@@ -5,10 +5,6 @@ class WrapperBasedTest < Minitest::Test
     refute_nil ::WrapperBased::VERSION
   end
 
-  def test_new_dci
-    assert_kind_of Module, WrapperBased::DCI.new
-  end
-
   def test_decorator_enscapulation
     type = Class.new do
       def accessible

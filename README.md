@@ -92,7 +92,26 @@ class Shortest < DCI::Context(:from, :to, :city)
   end
 end
 ```
+
 [View more examples](https://github.com/RichOrElse/wrapper-based/tree/master/examples)
+
+## Context methods
+
+### to_proc
+
+Returns call method as a Proc.
+
+```ruby
+['Card Wars', 'Ice Ninja Manual', 'Bacon'].map &GiftToy[gifter: 'Jake', giftee: 'Finn']
+```
+
+### context[params,...]
+
+Square brackets are alias for call method.
+
+```ruby
+TransferMoney[from: source_account, to: destination_account][amount: 100]
+```
 
 ## Development
 
