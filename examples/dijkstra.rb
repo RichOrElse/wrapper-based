@@ -35,12 +35,12 @@ DCI = WrapperBased::DCI.new unless defined? DCI
 class Distance < DCI::Context(:within)
   within.as Map
 
-  def between(a, b)
-    within.distance_between(a, b)
+  def between(from, to)
+    within.distance_between(from, to)
   end
 
   def of(path)
-    path.reverse.each_cons(2).inject(0) { |total, pair| total + between(*pair) }
+    path.reverse.each_cons(2).inject(0) { |total_distance, pair| total_distance + between(*pair) }
   end
 end
 
