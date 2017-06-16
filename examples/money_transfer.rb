@@ -1,10 +1,10 @@
 Log = method(:puts)
 Account = Struct.new(:number, :balance)
-NotEnoughFund = Class.new(StandardError)
+NotEnoughFunds = Class.new(StandardError)
 
 module SourceAccount
   def decrease_balance_by(amount)
-    raise NotEnoughFund, "Balance is below amount.", caller if balance < amount
+    raise NotEnoughFunds, "Balance is below amount.", caller if balance < amount
     self.balance -= amount
   end
 end

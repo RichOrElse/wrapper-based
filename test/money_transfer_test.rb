@@ -18,7 +18,7 @@ class TransferMoneyTest < MiniTest::Test
   end
 
   def test_withdraw_above_balance
-    error = assert_raises(NotEnoughFund) { TransferMoney[from: @account1].withdraw(60) }
+    error = assert_raises(NotEnoughFunds) { TransferMoney[from: @account1].withdraw(60) }
     assert_equal "Balance is below amount.", error.message
   end
 
