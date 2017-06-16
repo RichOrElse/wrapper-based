@@ -9,8 +9,12 @@ module WrapperBased
                 Class.new(Decorator) do
                   using Module.new { refine(type) { prepend(*behaviors.reverse) } }
 
-                  def method_missing(meth, *args, &block)
-                    __getobj__.send(meth, *args, &block)
+                  forwarding = behaviors.flat_map(&:public_instance_methods) - public_instance_methods
+
+                  forwarding.uniq.each do |meth|
+                    define_method(meth) do |*args, &block|
+                      __getobj__.send(meth, *args, &block)
+                    end
                   end
                 end
               end
