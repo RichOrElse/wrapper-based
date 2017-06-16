@@ -1,5 +1,7 @@
 # WrapperBased
 
+[![Gem Version](https://badge.fury.io/rb/wrapper_based.svg)](https://badge.fury.io/rb/wrapper_based)
+
 Wrapper Based DCI implementation in Ruby.
 
 ## Installation
