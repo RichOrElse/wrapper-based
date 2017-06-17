@@ -54,7 +54,7 @@ class Shortest < DCI::Context(:from, :to, :city)
   end
 
   def path
-    _shortest_path + [@from]
+    _shortest_path << @from
   end
 
   private
