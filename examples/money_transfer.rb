@@ -1,4 +1,4 @@
-Log = method(:puts)
+LogTransaction = method(:puts)
 Account = Struct.new(:number, :balance)
 NotEnoughFunds = Class.new(StandardError)
 
@@ -23,12 +23,12 @@ class TransferMoney < DCI::Context(:from, :to)
 
   def withdraw(amount)
     from.decrease_balance_by(amount)
-    Log["Withdraw", amount, from]
+    LogTransaction["Withdraw", amount, from.number]
   end
 
   def deposit(amount)
     to.increase_balance_by(amount)
-    Log["Deposit", amount, to]
+    LogTransaction["Deposit", amount, to.number]
   end
 
   def call(amount:)
