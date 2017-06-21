@@ -9,22 +9,22 @@ module Map
   end
 
   def distance_of(path)
-    Distance[within: self].of(path)
+    GetDistance[within: self].of(path)
   end
 end
 
 module CurrentIntersection
-  def neighbors(nearest:)
-    east_neighbor = nearest.east_neighbor_of(self)
-    south_neighbor = nearest.south_neighbor_of(self)
-    [south_neighbor, east_neighbor].compact
+  def neighbors(manhattan:)
+    east_neighbor = manhattan.east_neighbor_of(self)
+    south_neighbor = manhattan.south_neighbor_of(self)
+    [south_neighbor, east_neighbor].compact # excludes nil neighbors
   end
 end
 
 module DestinationNode
   def shortest_path(from:, within:)
     return [self] if equal? from
-    Shortest[to: self, from: from, city: within].path
+    FindShortest[to: self, from: from, city: within].path
   end
 end
 
@@ -32,7 +32,7 @@ end
 
 DCI = WrapperBased::DCI.new unless defined? DCI
 
-class Distance < DCI::Context(:within)
+class GetDistance < DCI::Context(:within)
   within.as Map
 
   def between(from, to)
@@ -44,7 +44,7 @@ class Distance < DCI::Context(:within)
   end
 end
 
-class Shortest < DCI::Context(:from, :to, :city)
+class FindShortest < DCI::Context(:from, :to, :city)
   from.as CurrentIntersection
   to.as DestinationNode
   city.as Map
@@ -54,14 +54,14 @@ class Shortest < DCI::Context(:from, :to, :city)
   end
 
   def path
-    _shortest_path << @from
+    shortest_path_from_city_neighbors << @from
   end
 
   private
 
-  def _shortest_path
+  def shortest_path_from_city_neighbors
     from.
-      neighbors(nearest: @city).
+      neighbors(manhattan: @city).
       map { |neighbor| to.shortest_path from: neighbor, within: @city }.
       min_by { |path| city.distance_of path }
   end
