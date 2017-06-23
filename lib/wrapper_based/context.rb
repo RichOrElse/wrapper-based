@@ -1,7 +1,8 @@
 module WrapperBased
   class Context
     def initialize(**where)
-      where.each { |role, player| instance_variable_set :"@#{role}", player }
+      @_casting = {}
+      where.each { |role, player| send :"#{role}=", player }
     end
 
     def to_proc
@@ -12,25 +13,32 @@ module WrapperBased
       call(*args, &block)
     end
 
+    UnassignedRole = StandardError
+
     class << self
       def [](**role_cast, &block)
         context_class = Class.new(self, &block)
 
         context_class.class_eval do
           role_cast.each do |role, cast|
-            class_variable_set :"@@#{role}", cast
+            role_player = :"@#{role}"
+
+            define_method(:"#{role}=") do |actor|
+              instance_variable_set(role_player, actor)
+              @_casting[role] = context_class.send(role).typecast(actor)
+            end
+
             define_method(role) do
-              self.class.class_variable_get(:"@@#{role}").
-                typecast instance_variable_get(:"@#{role}")
+              @_casting.fetch(role) { fail UnassignedRole, "Role '#{role}' is missing." }
             end
           end
         end
 
         context_class.singleton_class.class_eval do
-          role_cast.each do |role, _|
-            define_method(role) do
-              class_variable_get :"@@#{role}"
-            end
+          role_cast.each do |role, cast|
+            variable = :"@@#{role}"
+            define_method(role) { class_variable_get variable }
+            context_class.class_variable_set variable, cast
           end
 
           alias_method :[], :new
