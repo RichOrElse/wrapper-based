@@ -11,8 +11,10 @@ module WrapperBased
 
       def Context(*roles, &block)
         dci = self
-        cast = roles.inject({}) { |table, role| table[role.to_sym] = WrapperBased::Cast.new(role, dci); table }
-        WrapperBased::Context[**cast, &block]
+        Class.new(WrapperBased::Context) do
+          roles.each { |role| add_role role, WrapperBased::Cast.new(role, dci) }
+          class_eval(&block) unless block.nil?
+        end
       end unless defined? self.Context
     end # initialize method
   end # DCI class

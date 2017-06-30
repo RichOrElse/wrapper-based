@@ -13,39 +13,43 @@ module WrapperBased
       call(*args, &block)
     end
 
-    UnassignedRole = StandardError
+    UnassignedRole = Class.new(StandardError)
 
     class << self
-      def [](**role_cast, &block)
-        context_class = Class.new(self, &block)
+      alias_method :[], :new
 
-        context_class.class_eval do
-          role_cast.each do |role, cast|
-            role_player = :"@#{role}"
+      protected
 
-            define_method(:"#{role}=") do |actor|
-              instance_variable_set(role_player, actor)
-              @_casting[role] = context_class.send(role).typecast(actor)
-            end
+      def add_role(role, caster)
+        add_reader_for(role)
+        add_writer_for(role)
+        add_to_class(role, caster)
+      end
 
-            define_method(role) do
-              @_casting.fetch(role) { fail UnassignedRole, "Role '#{role}' is missing." }
-            end
-          end
+      def add_reader_for(role)
+        define_method(role) do
+          @_casting.fetch(role) { raise UnassignedRole, "Role '#{role}' is missing." }
+        end
+      end
+
+      def add_writer_for(role)
+        role_player = :"@#{role}"
+
+        define_method(:"#{role}=") do |actor|
+          instance_variable_set(role_player, actor)
+          @_casting[role] = self.class.send(role).typecast(actor)
+        end
+      end
+
+      def add_to_class(role, caster)
+        role_caster = :"@@#{role}"
+
+        singleton_class.class_eval do
+          define_method(role) { class_variable_get role_caster }
         end
 
-        context_class.singleton_class.class_eval do
-          role_cast.each do |role, cast|
-            variable = :"@@#{role}"
-            define_method(role) { class_variable_get variable }
-            context_class.class_variable_set variable, cast
-          end
-
-          alias_method :[], :new
-        end
-
-        context_class
-      end # [] method
-    end # singleton class
+        class_variable_set role_caster, caster
+      end
+    end # ClassMethods module
   end # Context class
 end # WrapperBased module
