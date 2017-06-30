@@ -1,6 +1,7 @@
 # WrapperBased
 
 [![Gem Version](https://badge.fury.io/rb/wrapper_based.svg)](https://badge.fury.io/rb/wrapper_based)
+[![Build Status](https://travis-ci.org/RichOrElse/wrapper-based.svg?branch=master)](https://travis-ci.org/RichOrElse/wrapper-based)
 
 Wrapper Based DCI implementation in Ruby.
 
@@ -20,32 +21,21 @@ Or install it yourself as:
 
     $ gem install wrapper_based
 
-
 Require DCI in your gems or save in your rails app as app/config/dci.rb:
 
+
 ```ruby
-  require 'wrapper_based/dci'
+require 'wrapper_based/dci'
 ```
 
 ## Usage
 
-Money Transfer use case:
+[Dijkstra data](https://github.com/RichOrElse/wrapper-based/blob/master/examples/dijkstra/data.rb) | 
+[Dijkstra test](https://github.com/RichOrElse/wrapper-based/blob/master/test/dijkstra_test.rb) | 
+Djikstra example:
 
 ```ruby
 require_relative 'dijkstra/data'
-# See https://github.com/RichOrElse/wrapper-based/blob/master/test/dijkstra_test.rb
-
-# Behaviors
-
-module Map
-  def distance_between(a, b)
-    @distances[Edge.new(a, b)]
-  end
-
-  def distance_of(path)
-    GetDistance[within: self].of(path)
-  end
-end
 
 module CurrentIntersection
   def neighbors(manhattan:)
@@ -62,7 +52,15 @@ module DestinationNode
   end
 end
 
-# Contexts
+module Map
+  def distance_between(a, b)
+    @distances[Edge.new(a, b)]
+  end
+
+  def distance_of(path)
+    GetDistance[within: self].of(path)
+  end
+end
 
 class GetDistance < DCI::Context(:within)
   within.as Map

@@ -1,18 +1,6 @@
 require_relative 'dijkstra/data'
 # See https://github.com/RichOrElse/wrapper-based/blob/master/test/dijkstra_test.rb
 
-# Behaviors
-
-module Map
-  def distance_between(a, b)
-    @distances[Edge.new(a, b)]
-  end
-
-  def distance_of(path)
-    GetDistance[within: self].of(path)
-  end
-end
-
 module CurrentIntersection
   def neighbors(manhattan:)
     east_neighbor = manhattan.east_neighbor_of(self)
@@ -28,7 +16,15 @@ module DestinationNode
   end
 end
 
-# Contexts
+module Map
+  def distance_between(a, b)
+    @distances[Edge.new(a, b)]
+  end
+
+  def distance_of(path)
+    GetDistance[within: self].of(path)
+  end
+end
 
 class GetDistance < DCI::Context(:within)
   within.as Map
