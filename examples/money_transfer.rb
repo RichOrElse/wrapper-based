@@ -1,10 +1,10 @@
-LogTransaction = method(:puts)
+LogTransaction = Struct.new(:transaction_type, :amount, :account_number)
 Account = Struct.new(:number, :balance)
 NotEnoughFunds = Class.new(StandardError)
 
 module SourceAccount
   def decrease_balance_by(amount)
-    raise NotEnoughFunds, "Balance is below amount.", caller if balance < amount
+    fail NotEnoughFunds, "Balance is below amount.", caller if balance < amount
     self.balance -= amount
   end
 end
@@ -32,7 +32,10 @@ class TransferMoney < DCI::Context(:from, :to)
   end
 
   def call(amount:)
-    withdraw(amount)
-    deposit(amount)
+    accounts = [@from, @to]
+    transaction_logs = [withdraw(amount), deposit(amount)]
+    [:success, { logs: transaction_logs }, accounts]
+  rescue NotEnoughFunds => error
+    [:failure, { message: error.message }, accounts]
   end
 end
