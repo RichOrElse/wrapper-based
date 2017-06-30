@@ -30,8 +30,6 @@ end
 
 # Contexts
 
-DCI = WrapperBased::DCI.new unless defined? DCI
-
 class GetDistance < DCI::Context(:within)
   within.as Map
 

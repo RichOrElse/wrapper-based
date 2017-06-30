@@ -2,7 +2,6 @@ require "wrapper_based/version"
 require "wrapper_based/cast"
 require "wrapper_based/context"
 require "wrapper_based/context/builder"
-require "wrapper_based/dci"
 require "wrapper_based/decorator"
 
 module WrapperBased

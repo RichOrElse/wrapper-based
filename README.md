@@ -20,7 +20,16 @@ Or install it yourself as:
 
     $ gem install wrapper_based
 
+
+Require DCI in your gems or save in your rails app as app/config/dci.rb:
+
+```ruby
+  require 'wrapper_based/dci'
+```
+
 ## Usage
+
+Money Transfer use case:
 
 ```ruby
 require_relative 'dijkstra/data'
@@ -54,8 +63,6 @@ module DestinationNode
 end
 
 # Contexts
-
-DCI = WrapperBased::DCI.new unless defined? DCI
 
 class GetDistance < DCI::Context(:within)
   within.as Map

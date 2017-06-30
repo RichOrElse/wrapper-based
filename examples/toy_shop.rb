@@ -1,5 +1,3 @@
-require_relative '../lib/wrapper_based'
-
 # Data
 
 Purchase = Struct.new(:toy, :buyer)
@@ -20,7 +18,6 @@ module Recipient
 end
 
 # Contexts
-DCI = WrapperBased::DCI.new unless defined? DCI
 
 class PurchaseToy < DCI::Context(:purchaser)
   purchaser.as Buyer
