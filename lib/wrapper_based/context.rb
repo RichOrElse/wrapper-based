@@ -1,7 +1,7 @@
 module WrapperBased
   class Context
     def initialize(**where)
-      @_casting = {}
+      @casting_director = CastingDirector.new(self.class)
       where.each { |role, player| send :"#{role}=", player }
     end
 
@@ -18,17 +18,21 @@ module WrapperBased
     class << self
       alias_method :[], :new
 
+      def cast_as(role, actor)
+        send(role).typecast(actor)
+      end
+
       protected
 
-      def add_role(role, caster)
+      def add_role(role, dci)
         add_reader_for(role)
         add_writer_for(role)
-        add_to_class(role, caster)
+        add_to_class_cast_for role, Cast.new(role, dci)
       end
 
       def add_reader_for(role)
         define_method(role) do
-          @_casting.fetch(role) { raise UnassignedRole, "Role '#{role}' is missing." }
+          @casting_director.fetch(role) { raise UnassignedRole, "Role '#{role}' is missing.", caller }
         end
       end
 
@@ -37,19 +41,19 @@ module WrapperBased
 
         define_method(:"#{role}=") do |actor|
           instance_variable_set(role_player, actor)
-          @_casting[role] = self.class.send(role).typecast(actor)
+          @casting_director.cast_as role, actor
         end
       end
 
-      def add_to_class(role, caster)
+      def add_to_class_cast_for(role, cast)
         role_caster = :"@@#{role}"
 
         singleton_class.class_eval do
           define_method(role) { class_variable_get role_caster }
         end
 
-        class_variable_set role_caster, caster
+        class_variable_set role_caster, cast
       end
-    end # ClassMethods module
+    end # class methods
   end # Context class
 end # WrapperBased module

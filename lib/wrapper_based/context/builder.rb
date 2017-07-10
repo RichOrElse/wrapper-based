@@ -12,7 +12,7 @@ module WrapperBased
     def Context(*roles, &block)
       dci = self
       Class.new(WrapperBased::Context) do
-        roles.each { |role| add_role role, WrapperBased::Cast.new(role, dci) }
+        roles.each { |role| add_role role, dci }
         class_eval(&block) unless block.nil?
       end
     end
