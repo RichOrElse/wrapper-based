@@ -1,7 +1,7 @@
 require 'set'
 
 module WrapperBased
-  class Context::Cast
+  class Context::Casting
     attr_reader :name, :dci
 
     def initialize(name, dci)

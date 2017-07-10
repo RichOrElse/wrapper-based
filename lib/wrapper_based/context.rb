@@ -27,7 +27,7 @@ module WrapperBased
       def add_role(role, dci)
         add_reader_for(role)
         add_writer_for(role)
-        add_to_class_cast_for role, Cast.new(role, dci)
+        add_to_class_cast_for role, Casting.new(role, dci)
       end
 
       def add_reader_for(role)
@@ -45,14 +45,14 @@ module WrapperBased
         end
       end
 
-      def add_to_class_cast_for(role, cast)
-        role_caster = :"@@#{role}"
+      def add_to_class_cast_for(role, casting)
+        role_casting = :"@@#{role}"
 
         singleton_class.class_eval do
-          define_method(role) { class_variable_get role_caster }
+          define_method(role) { class_variable_get role_casting }
         end
 
-        class_variable_set role_caster, cast
+        class_variable_set role_casting, casting
       end
     end # class methods
   end # Context class
