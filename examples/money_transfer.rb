@@ -30,11 +30,14 @@ module Funds
       LogTransaction["Deposit", amount, to.number]
     end
 
+    def accounts
+      [@from, @to]
+    end
+
     def call(amount:)
-      accounts = [@from, @to]
       transaction_logs = [withdraw(amount), deposit(amount)]
       [:success, { logs: transaction_logs }, accounts]
-    rescue NotEnoughFunds => error
+    rescue Funds::Insufficient => error
       [:failure, { message: error.message }, accounts]
     end
   end
