@@ -1,7 +1,7 @@
 # Source: http://fulloo.info/Examples/RubyExamples/Dijkstra/DijkstraListing.html
 
 def infinity
-  2**(0.size * 8 -2) -1
+  2**(0.size * 8 - 2) - 1
 end
 
 #
