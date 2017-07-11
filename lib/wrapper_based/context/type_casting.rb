@@ -10,7 +10,7 @@ module WrapperBased
 
     refine Delegator do
       def as_role_played_by(actor)
-        return replace_role_player_with(actor) if role_type_same_as?(actor)
+        return replace_role_player_with(actor) if actor.instance_of?(role_type)
         yield
       end
 
@@ -19,9 +19,9 @@ module WrapperBased
         self
       end
 
-      def role_type_same_as?(actor)
-        actor.instance_of?(__getobj__.class)
+      def role_type
+        __getobj__.class
       end
-    end
-  end
+    end # Delegator refinement
+  end # TypeCasting module
 end
