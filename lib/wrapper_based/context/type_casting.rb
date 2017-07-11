@@ -2,6 +2,12 @@ require 'delegate'
 
 module WrapperBased
   module Context::TypeCasting
+    refine Object do
+      def as_role_played_by(actor)
+        actor
+      end
+    end
+
     refine NilClass do
       def as_role_played_by(actor)
         yield

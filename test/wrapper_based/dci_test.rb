@@ -24,5 +24,12 @@ module WrapperBased
       error = assert_raises(Context::UnassignedRole) { ctx.new.call }
       assert_equal "Role 'missing' is missing.", error.message
     end
+
+    def test_context_castless_role
+      new_ctx = DCI::Context(:castless).new castless: Object.new
+      data2 = Object.new
+      new_ctx.castless = data2
+      assert_same data2, new_ctx.castless
+    end
   end
 end
