@@ -2,12 +2,12 @@ require 'set'
 
 module WrapperBased
   class Context::Casting
-    attr_reader :name, :dci
+    attr_reader :name
 
-    def initialize(name, dci)
+    def initialize(name, wrappers)
       @name = name.to_sym
       @casting = Set.new
-      @dci = dci
+      @wrappers = wrappers
     end
 
     def as(extention)
@@ -15,8 +15,12 @@ module WrapperBased
       self
     end
 
+    def wrapper_for(*args)
+      @wrappers[args]
+    end
+
     def cast_type(type)
-      @dci.wrapper_for type, *@casting
+      wrapper_for type, *@casting
     end
 
     def typecast(actor)

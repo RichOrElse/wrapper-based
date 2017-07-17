@@ -1,4 +1,10 @@
 require "wrapper_based"
 require "type_wrapper"
 
-DCI = WrapperBased::Context::Builder.new(TypeWrapper)
+module DCI
+  @@context_producer = WrapperBased::Context::Producer.new(TypeWrapper)
+
+  def self.Context(*args, &block)
+    @@context_producer.produce(*args, &block)
+  end
+end
