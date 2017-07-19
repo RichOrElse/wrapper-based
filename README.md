@@ -3,7 +3,7 @@
 [![Gem Version](https://badge.fury.io/rb/wrapper_based.svg)](https://badge.fury.io/rb/wrapper_based)
 [![Build Status](https://travis-ci.org/RichOrElse/wrapper-based.svg?branch=master)](https://travis-ci.org/RichOrElse/wrapper-based)
 
-Wrapper Based DCI implementation in Ruby.
+Wrapper Based DCI framework for OOP done right.
 
 ## Installation
 
@@ -17,17 +17,6 @@ And then execute:
 
     $ bundle
 
-Or install it yourself as:
-
-    $ gem install wrapper_based
-
-Require DCI in your gems or save in your rails app as app/config/dci.rb:
-
-
-```ruby
-require 'wrapper_based/dci'
-```
-
 ## Usage
 
 [Dijkstra data](https://github.com/RichOrElse/wrapper-based/blob/master/examples/dijkstra/data.rb) | 
@@ -35,8 +24,6 @@ require 'wrapper_based/dci'
 Djikstra example:
 
 ```ruby
-require_relative 'dijkstra/data'
-
 module CurrentIntersection
   def neighbors(manhattan:)
     east_neighbor = manhattan.east_neighbor_of(self)
@@ -52,33 +39,17 @@ module DestinationNode
   end
 end
 
-module Map
+Map = DCI::Module.new do |mod| using mod
   def distance_between(a, b)
     @distances[Edge.new(a, b)]
   end
 
   def distance_of(path)
-    GetDistance[within: self].of(path)
+    path.each_cons(2).inject(0) { |total, (to, from)| total + distance_between(from, to) }
   end
 end
 
-class GetDistance < DCI::Context(:within)
-  within.as Map
-
-  def between(from, to)
-    within.distance_between(from, to)
-  end
-
-  def of(path)
-    path.reverse.each_cons(2).inject(0) { |total_distance, pair| total_distance + between(*pair) }
-  end
-end
-
-class FindShortest < DCI::Context(:from, :to, :city)
-  from.as CurrentIntersection
-  to.as DestinationNode
-  city.as Map
-
+class FindShortest < DCI::Context(from: CurrentIntersection, to: DestinationNode, city: Map)
   def distance
     city.distance_of path
   end
@@ -102,7 +73,7 @@ end
 
 ## Context methods
 
-### to_proc
+### context#to_proc
 
 Returns call method as a Proc.
 
@@ -116,6 +87,22 @@ Square brackets are alias for call method.
 
 ```ruby
 TransferMoney[from: source_account, to: destination_account][amount: 100]
+```
+
+## DCI::Module
+
+Extention module for supporting procedural code. Define a block with the 'new' method and pass the 'mod' parameter to 'using' keyword.
+
+```ruby
+AwesomeSinging = TypeWrapper::Module.new do |mod| using mod
+  def sing
+    "#{name} sings #{song}"
+  end
+
+  def song
+    "Everything is AWESOME!!!"
+  end
+end
 ```
 
 ## Development

@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Ritchie Paul Buitre"]
   spec.email         = ["ritchie@richorelse.com"]
 
-  spec.summary       = "Wrapper Based DCI implementation in Ruby."
+  spec.summary       = "Wrapper Based DCI framework for OOP done right."
   spec.homepage      = "https://github.com/RichOrElse/wrapper-based/"
   spec.license       = "MIT"
 
@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.required_ruby_version = ">= 2.1.0"
 
-  spec.add_runtime_dependency "type_wrapper", "~> 1.0"
+  spec.add_runtime_dependency "type_wrapper", "~> 1.2"
 
   spec.add_development_dependency "bundler", "~> 1.15"
   spec.add_development_dependency "rake", "~> 10.0"

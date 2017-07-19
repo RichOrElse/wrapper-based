@@ -16,33 +16,17 @@ module DestinationNode
   end
 end
 
-module Map
+Map = DCI::Module.new do |mod| using mod
   def distance_between(a, b)
     @distances[Edge.new(a, b)]
   end
 
   def distance_of(path)
-    GetDistance[within: self].of(path)
+    path.each_cons(2).inject(0) { |total, (to, from)| total + distance_between(from, to) }
   end
 end
 
-class GetDistance < DCI::Context(:within)
-  within.as Map
-
-  def between(from, to)
-    within.distance_between(from, to)
-  end
-
-  def of(path)
-    path.reverse.each_cons(2).inject(0) { |total_distance, pair| total_distance + between(*pair) }
-  end
-end
-
-class FindShortest < DCI::Context(:from, :to, :city)
-  from.as CurrentIntersection
-  to.as DestinationNode
-  city.as Map
-
+class FindShortest < DCI::Context(from: CurrentIntersection, to: DestinationNode, city: Map)
   def distance
     city.distance_of path
   end

@@ -14,13 +14,13 @@ class ManhattanGeometryTest < MiniTest::Test
   def test_manhattan_geometries_2
     geometries = ManhattanGeometry2.new
     shortest = FindShortest[from: geometries.root, to: geometries.destination, city: geometries]
-    get_distance = GetDistance[within: geometries]
+    city = shortest.city
     actual = []
     current_node = nil
     
     shortest.path.each do |node|
       if current_node
-        actual <<  get_distance.between(node, current_node)
+        actual <<  city.distance_between(node, current_node)
       end
       actual << node.name
       current_node = node
