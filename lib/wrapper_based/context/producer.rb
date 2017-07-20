@@ -7,14 +7,15 @@ module WrapperBased
         end
       end
 
-      def produce(*roles, **mixins, &block)
+      def produce(*supporting, **leading, &script)
         wrappers = @wrapper_cache
+        roles = supporting.map(&:to_sym) | leading.keys
         Class.new(Context) do
-          (mixins.keys | roles.map(&:to_sym)).each { |role| add_role role, Casting.new(role, wrappers) }
-          mixins.each_pair { |role, trait| send(role).as trait }
-          class_eval(&block) unless block.nil?
+          roles.each { |role| add_role role, Casting.new(role, wrappers) }
+          leading.each_pair { |role, trait| send(role).as trait }
+          class_eval(&script) unless script.nil?
         end
-      end
+      end # produce method
     end # Producer class
   end # Context class
 end # WrapperBased module
