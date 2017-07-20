@@ -25,9 +25,9 @@ Djikstra example:
 
 ```ruby
 module DestinationNode
-  def shortest_path_from(neighbor, find_shortest)
-    return [self] if equal? neighbor
-    find_shortest.path(from: neighbor)
+  def shortest_path_from(node, find_shortest)
+    return [self] if equal? node
+    find_shortest.path from: node
   end
 end
 
@@ -40,8 +40,14 @@ Map = DCI::Module.new do |mod| using mod
     path.each_cons(2).inject(0) { |total, (to, from)| total + distance_between(from, to) }
   end
 
-  def neighbors(near:)
-    [south_neighbor_of(near), east_neighbor_of(near)].compact # excludes nil neighbors
+  def neighbors_of(node)
+    [south_neighbor_of(node), east_neighbor_of(node)].compact # excludes nil neighbors
+  end
+
+  def find_shortest_neighbor_path(node, &to_shortest_path)
+    neighbors_of(node).
+      map(&to_shortest_path).
+      min_by { |neighbor_path| distance_of neighbor_path }
   end
 end
 
@@ -53,15 +59,11 @@ class FindShortest < DCI::Context(:from, to: DestinationNode, city: Map)
   end
 
   def path(from: @from)
-    shortest_neighbor_path(from) << from
+    city.find_shortest_neighbor_path(from, &self) << from
   end
 
-  private
-
-  def shortest_neighbor_path(current)
-    city.neighbors(near: current).
-      map { |neighbor| to.shortest_path_from(neighbor, self) }.
-      min_by { |neighbor_path| city.distance_of neighbor_path }
+  def call(neighbor = @from)
+    to.shortest_path_from(neighbor, self)
   end
 end
 ```
