@@ -2,7 +2,12 @@ module WrapperBased
   class Context
     def initialize(**where)
       @_casting_director_ = CastingDirector.new(self.class)
+      rebind where
+    end
+
+    def rebind(**where)
       where.each { |role, player| public_send :"#{role}=", player }
+      self
     end
 
     def to_proc
@@ -17,6 +22,10 @@ module WrapperBased
 
     class << self
       alias_method :[], :new
+
+      def call(**where)
+        new(where).call
+      end
 
       def cast_as(role, actor)
         send(role).typecast(actor)
@@ -45,9 +54,7 @@ module WrapperBased
       end
 
       def add_role_to_class(role, casting)
-        role_casting = :"@@#{role}"
-        class_variable_set role_casting, casting
-        define_singleton_method(role) { class_variable_get role_casting }
+        define_singleton_method(role) { casting }
       end
     end # class methods
   end # Context class

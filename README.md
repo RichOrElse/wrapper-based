@@ -86,6 +86,32 @@ Square brackets are alias for call method.
 TransferMoney[from: source_account, to: destination_account][amount: 100]
 ```
 
+### context#rebind(**params)
+Assigns object to role.
+
+```ruby
+add_member = Evaluate.new(to: 'Justice League')
+['Batman', Superman', 'Wonder Woman'].each do |founder|
+  add_member.rebind(member: founder).(recruit: 'Supergirl')
+end
+```
+
+## Context class methods
+
+### klass#call(**params)
+
+A shortcut for instantiating the context by passing the collaborators and then executing the context call method.
+
+```ruby
+Funds::TransferMoney.(from: @account1, to: @account2, amount: 50)
+```
+
+Which is equivalent to:
+
+```ruby
+Funds::TransferMoney.new(from: @account1, to: @account2, amount: 50).call
+```
+
 ## DCI::Module
 
 Extention module for supporting procedural code. Define a block with the 'new' method and pass the 'mod' parameter to 'using' keyword.

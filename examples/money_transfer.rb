@@ -1,5 +1,3 @@
-LogTransaction = Struct.new(:transaction_type, :amount, :account_number)
-
 module Funds
   Insufficient = Class.new(StandardError)
 
@@ -16,33 +14,41 @@ module Funds
     end
   end
 
-  class TransferMoney < DCI::Context(:from, :to)
-    from.as SourceAccount
-    to.as DestinationAccount
+  module Logging
+    def log(transfer_type, amount, account, at: Time.now)
+      self << [transfer_type, account.number, amount, at]
+    end
+  end
+
+  class TransferMoney < DCI::Context(:amount, from: SourceAccount, to: DestinationAccount, events: Logging)
+    def initialize(amount: 0, events: [], **accounts)
+      super
+    end
 
     def withdraw(amount)
       from.decrease_balance_by(amount)
-      LogTransaction["Withdraw", amount, from.number]
+      events.log "Withdrew", amount, from
     end
 
     def deposit(amount)
       to.increase_balance_by(amount)
-      LogTransaction["Deposit", amount, to.number]
+      events.log "Deposited", amount, to
+    end
+
+    def transfer(amount)
+      withdraw(amount)
+      deposit(amount)
+    end
+
+    def call(amount: @amount)
+      transfer(amount)
+      return :success, { log: @events }, accounts
+    rescue Funds::Insufficient => error
+      return :failure, { message: error.message }, accounts
     end
 
     def accounts
       [@from, @to]
     end
-
-    def call(amount:)
-      transaction_logs = [withdraw(amount), deposit(amount)]
-      [:success, { logs: transaction_logs }, accounts]
-    rescue Funds::Insufficient => error
-      [:failure, { message: error.message }, accounts]
-    end
-  end
-
-  def self.transfer(**where)
-    TransferMoney[**where]
   end
 end

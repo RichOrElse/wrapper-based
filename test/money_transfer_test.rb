@@ -10,22 +10,22 @@ class FundsTransferTest < MiniTest::Test
   end
 
   def test_deposit
-    Funds.transfer(to: @account1).deposit(10)
+    Funds::TransferMoney[to: @account1].deposit(10)
     assert_equal 60, @account1.balance
   end
 
   def test_withdraw
-    Funds.transfer(from: @account1).withdraw(10)
+    Funds::TransferMoney[from: @account1].withdraw(10)
     assert_equal 40, @account1.balance
   end
 
   def test_withdraw_above_balance
-    error = assert_raises(Funds::Insufficient) { Funds.transfer(from: @account1).withdraw(60) }
+    error = assert_raises(Funds::Insufficient) { Funds::TransferMoney[from: @account1].withdraw(60) }
     assert_equal "Balance is below amount.", error.message
   end
 
   def test_call
-    Funds.transfer(from: @account1, to: @account2).(amount: 50)
+    Funds::TransferMoney.(from: @account1, to: @account2, amount: 50)
     assert_equal 0, @account1.balance
     assert_equal 150, @account2.balance
   end
