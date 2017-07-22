@@ -21,18 +21,16 @@ module Funds
   end
 
   class TransferMoney < DCI::Context(:amount, from: SourceAccount, to: DestinationAccount, events: Logging)
-    def initialize(amount: 0, events: [], **accounts)
-      super
-    end
+    def initialize(amount: 0, events: [], **accounts) super end
 
     def withdraw(amount)
       from.decrease_balance_by(amount)
-      events.log "Withdrew", amount, from
+      events.log "Withdrew", amount, @from
     end
 
     def deposit(amount)
       to.increase_balance_by(amount)
-      events.log "Deposited", amount, to
+      events.log "Deposited", amount, @to
     end
 
     def transfer(amount)
@@ -42,9 +40,9 @@ module Funds
 
     def call(amount: @amount)
       transfer(amount)
-      return :success, { log: @events }, accounts
+      return :success, accounts, log: @events
     rescue Funds::Insufficient => error
-      return :failure, { message: error.message }, accounts
+      return :failure, accounts, message: error.message
     end
 
     def accounts

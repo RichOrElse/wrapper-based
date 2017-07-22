@@ -1,11 +1,13 @@
+require 'wrapper_based'
+
 # Data
 
 Purchase = Struct.new(:toy, :buyer)
 Deliver = Struct.new(:toy, :recipient, :purchase, :status)
 
-# Behaviors
+# Interactions
 
-module Buyer
+module Shopper
   def buy(toy)
     Purchase.new toy, self
   end
@@ -19,8 +21,17 @@ end
 
 # Contexts
 
+class Buying < DCI::Context(shopper: Shopper, recipient: Recipient)
+  def initialize(shopper:, recipient: shopper) super end
+
+  def call(item)
+    bought = shopper.buy item
+    recipient.receive bought
+  end
+end
+
 class PurchaseToy < DCI::Context(:purchaser)
-  purchaser.as Buyer
+  purchaser.as Shopper
   purchaser.as Recipient
 
   def call(toy)
@@ -31,7 +42,7 @@ end
 
 
 class GiftToy < DCI::Context(:gifter, :giftee)
-  gifter.as Buyer
+  gifter.as Shopper
   giftee.as Recipient
 
   def call(toy)
@@ -40,11 +51,9 @@ class GiftToy < DCI::Context(:gifter, :giftee)
   end
 end
 
-# Interactions
-
 finn_purchase_toy = PurchaseToy[purchaser: 'Finn']
 finn_purchase_toy.call 'Rusty sword'
 finn_purchase_toy.('Armor of Zeldron')
 finn_purchase_toy['The Enchiridion']
 
-['Card Wars', 'Ice Ninja Manual', 'Bacon'].each &GiftToy[gifter: 'Jake', giftee: 'Finn']
+puts ['Card Wars', 'Ice Ninja Manual', 'Bacon'].map &GiftToy[gifter: 'Jake', giftee: 'Finn']
