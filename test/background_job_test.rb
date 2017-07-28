@@ -3,8 +3,7 @@ Author = Struct.new(:id, :email, :posts)
 PostMailer = Class.new
 
 require 'test_helper'
-require 'active_support/core_ext/integer'
-require 'active_support/core_ext/time/calculations'
+require 'active_support/all'
 require_relative '../examples/background_job'
 
 class BackgroundJobTest < MiniTest::Test
