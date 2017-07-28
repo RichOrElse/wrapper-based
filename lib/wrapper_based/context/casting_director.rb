@@ -5,9 +5,9 @@ module WrapperBased
     extend Forwardable
     using Context::TypeCasting
 
-    def initialize(context_class)
+    def initialize(casting_agency)
       @casts = {}
-      @re = context_class
+      @re = casting_agency
     end
 
     def cast_as(role, actor)

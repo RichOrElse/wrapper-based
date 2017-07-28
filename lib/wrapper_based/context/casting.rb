@@ -6,12 +6,12 @@ module WrapperBased
 
     def initialize(name, wrappers)
       @name = name.to_sym
-      @casting = Set.new
+      @talents = Set.new
       @wrappers = wrappers
     end
 
-    def as(extention)
-      @casting << extention
+    def as(talent)
+      @talents << talent
       self
     end
 
@@ -20,11 +20,11 @@ module WrapperBased
     end
 
     def cast_type(type)
-      wrapper_for type, *@casting
+      wrapper_for type, *@talents
     end
 
     def typecast(actor)
-      return actor if @casting.empty?
+      return actor if @talents.empty?
       cast_type(actor.class).new actor
     end
   end

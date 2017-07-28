@@ -1,8 +1,11 @@
 module WrapperBased
   class Context
     def initialize(**where)
-      @_casting_director_ = CastingDirector.new(self.class)
       rebind where
+    end
+
+    def _casting_director_
+      @_casting_director_ ||= CastingDirector.new(self.class)
     end
 
     def rebind(**where)
@@ -41,7 +44,7 @@ module WrapperBased
 
       def add_reader_for(role)
         define_method(role) do
-          @_casting_director_.fetch(role) { raise UnassignedRole, "Role '#{role}' is missing.", caller }
+          _casting_director_.fetch(role) { raise UnassignedRole, "Role '#{role}' is missing.", caller }
         end
       end
 
@@ -49,7 +52,7 @@ module WrapperBased
         role_player = :"@#{role}"
         define_method(:"#{role}=") do |actor|
           instance_variable_set(role_player, actor)
-          @_casting_director_.cast_as role, actor
+          _casting_director_.cast_as role, actor
         end
       end
 
