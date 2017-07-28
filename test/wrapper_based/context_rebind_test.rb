@@ -2,7 +2,8 @@ require "test_helper"
 
 module WrapperBased
   class ContextRebindTest < Minitest::Test
-    Context = DCI::Context(:supporting, leading: Module.new)
+    Role = Module.new { def lead; end }
+    Context = DCI::Context(:supporting, leading: Role)
 
     def setup
       @initial_data = Object.new
