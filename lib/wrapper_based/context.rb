@@ -36,6 +36,28 @@ module WrapperBased
 
       protected
 
+      def cast_to(role, trait)
+        case trait
+        when ::Class
+          define_role role, &trait.method(:new)
+        when ::Proc, ::Method
+          define_role role, &trait
+        when ::Module
+          send(role).as trait
+        else
+          throw :wrong_trait_type, [role, trait, "expected Module, Class, Proc or Method"]
+        end
+      end
+
+      def define_role(role)
+        role_player = :"@#{role}"
+        define_method(:"#{role}=") do |actor|
+          instance_variable_set(role_player, actor)
+          _casting_director_[role] = yield(actor)
+        end
+        add_reader_for(role)
+      end
+
       def add_role(role, casting)
         add_reader_for(role)
         add_writer_for(role)

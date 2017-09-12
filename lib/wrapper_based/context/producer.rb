@@ -10,11 +10,14 @@ module WrapperBased
       def produce(*supporting, **leading, &script)
         wrappers = @wrapper_cache
         roles = supporting.map(&:to_sym) | leading.keys
-        Class.new(Context) do
-          roles.each { |role| add_role role, Casting.new(role, wrappers) }
-          leading.each_pair { |role, trait| send(role).as trait }
-          class_eval(&script) unless script.nil?
+        key, value, expected = catch(:wrong_trait_type) do
+          return Class.new(Context) do
+            roles.each { |role| add_role role, Casting.new(role, wrappers) }
+            leading.each_pair { |role, trait| cast_to(role, trait) }
+            class_eval(&script) unless script.nil?
+          end
         end
+        raise TypeError, "'#{key}: #{value}' has wrong key value type #{value.class} (#{expected})", caller
       end # produce method
     end # Producer class
   end # Context class

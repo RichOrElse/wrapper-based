@@ -15,6 +15,6 @@ module WrapperBased
     end
 
     def_delegator :@re, :cast_as, :recast_as
-    def_delegators :@casts, :fetch, :[]
+    def_delegators :@casts, :fetch, :[], :[]=
   end
 end

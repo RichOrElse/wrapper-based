@@ -46,6 +46,8 @@ module Map
 end
 
 class FindsDistance < DCI::Context(city: Map)
+  def initialize(city) super(city: city) end
+
   def between(from, to)
     city.distance_between(from, to)
   end
@@ -57,17 +59,15 @@ class FindsDistance < DCI::Context(city: Map)
   alias_method :call, :of
 end
 
-class FindsShortest < DCI::Context(:road_distance, :from, to: DestinationNode, city: Map)
-  def initialize city:, from: city.root, to: city.destination, road_distance: FindsDistance[city: city]
-    super
-  end
+class FindsShortest < DCI::Context(:from, to: DestinationNode, city: Map, road_distance: FindsDistance)
+  def initialize(city:, from: city.root, to: city.destination, road_distance: city) super end
 
   def distance
     road_distance.of path
   end
 
   def path(from: @from)
-    city.neighbors_of(from).map(&to_shortest_path).min_by(&road_distance).concat from
+    city.neighbors_of(from).map(&to_shortest_path).min_by(&road_distance) << from
   end
 
   def call(neighbor = @from)
@@ -129,7 +129,7 @@ Funds::TransferMoney.new(from: @account1, to: @account2, amount: 50).call
 Extention module for supporting procedural code. Define a block with the 'new' method and pass the 'mod' parameter to 'using' keyword.
 
 ```ruby
-AwesomeSinging = TypeWrapper::Module.new do |mod| using mod
+AwesomeSinging = DCI::Module.new do |mod| using mod
   def sing
     "#{name} sings #{song}"
   end

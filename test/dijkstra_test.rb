@@ -3,21 +3,22 @@ require_relative '../examples/dijkstra'
 
 class ManhattanGeometryTest < MiniTest::Test
   def test_manhattan_geometries_1
-    find_shortest = FindShortest.new city: ManhattanGeometry1.new
-    assert_equal %w(i h g d a), find_shortest.path.map(&:name)
-    assert_equal 6, find_shortest.distance
+    finds_shortest = FindsShortest.new city: ManhattanGeometry1.new
+    assert_equal %w(i h g d a), finds_shortest.path.map(&:name)
+    assert_equal 6, finds_shortest.distance
   end
 
   def test_manhattan_geometries_2
-    context              = FindShortest.new city: ManhattanGeometry2.new
-    city, path, distance = context.city, context.path, context.distance
+    city = ManhattanGeometry2.new
+    finds_shortest = FindsShortest.new city: city
+    finds_distance = FindsDistance[city]
     actual, current_node = [], nil
-    path.each do |node|
-      actual <<  city.distance_between(node, current_node) if current_node
+    finds_shortest.path.each do |node|
+      actual <<  finds_distance.between(node, current_node) if current_node
       actual << node.name
       current_node = node
     end
     assert_equal ["k", 1, "j", 1, "c", 3, "b", 2, "a"], actual
-    assert_equal 7, distance
+    assert_equal 7, finds_shortest.distance
   end
 end
