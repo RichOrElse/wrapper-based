@@ -21,7 +21,7 @@ end
 
 # Contexts
 
-class Buying < DCI::Context(shopper: Shopper, recipient: Recipient)
+class BuyToy < DCI::Context(shopper: Shopper, recipient: Recipient)
   def initialize(shopper:, recipient: shopper) super end
 
   def call(item)
@@ -30,28 +30,14 @@ class Buying < DCI::Context(shopper: Shopper, recipient: Recipient)
   end
 end
 
-class PurchaseToy < DCI::Context(:purchaser)
-  purchaser.as Shopper
-  purchaser.as Recipient
-
-  def call(toy)
-    purchased = purchaser.buy toy
-    purchaser.receive purchased
-  end
-end
-
-
-class GiftToy < DCI::Context(:gifter, :giftee)
-  gifter.as Shopper
-  giftee.as Recipient
-
+class GiftToy < DCI::Context(gifter: Shopper, giftee: Recipient)
   def call(toy)
     gift = gifter.buy toy
     giftee.receive gift
   end
 end
 
-finn_purchase_toy = PurchaseToy[purchaser: 'Finn']
+finn_purchase_toy = BuyToy[shopper: 'Finn']
 finn_purchase_toy.call 'Rusty sword'
 finn_purchase_toy.('Armor of Zeldron')
 finn_purchase_toy['The Enchiridion']

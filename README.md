@@ -25,6 +25,8 @@ Djikstra |
 [Toy Shop](https://github.com/RichOrElse/wrapper-based/blob/master/examples/toy_shop.rb) | 
 [Acapella](https://github.com/RichOrElse/wrapper-based/blob/master/examples/acapella.rb) | 
 [Background Job](https://github.com/RichOrElse/wrapper-based/blob/master/examples/background_job.rb) | 
+[Facade](https://github.com/RichOrElse/wrapper-based/blob/master/examples/users_facade.rb) | 
+[HTTP API Client](https://github.com/RichOrElse/wrapper-based/blob/master/examples/http_api_client.rb) | 
 [see more examples](https://github.com/RichOrElse/wrapper-based/tree/master/examples)
 
 ```ruby

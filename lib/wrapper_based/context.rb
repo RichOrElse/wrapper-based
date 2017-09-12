@@ -78,6 +78,7 @@ module WrapperBased
         end
       end
 
+      # TODO: Remove
       def add_role_to_class(role, casting)
         define_singleton_method(role) { casting }
       end

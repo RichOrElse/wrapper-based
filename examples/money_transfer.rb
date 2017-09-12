@@ -40,13 +40,9 @@ module Funds
 
     def call(amount: @amount)
       transfer(amount)
-      return :success, accounts, log: @events
+      return :success, logging: @events, accounts: [@from, @to]
     rescue Funds::Insufficient => error
-      return :failure, accounts, message: error.message
-    end
-
-    def accounts
-      [@from, @to]
+      return :failure, message: error.message
     end
   end
 end
