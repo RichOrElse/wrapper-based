@@ -10,7 +10,7 @@ end
 class SendWeeklySummary < DCI::Context(:author, posts: RangeQuery)
   def initialize(author) super(author: author, posts: author.posts) end
 
-  def perform since: Date.today.at_beginning_of_week, weekly_posts: self.posts.weekly(since)
+  def perform since: Date.today.at_beginning_of_week, weekly_posts: posts.weekly(since)
     weekly_digest = PostMailer.summary(weekly_posts, to: @author, title: "Your Posts this week")
     weekly_digest.deliver unless weekly_posts.empty?
   end
@@ -24,4 +24,6 @@ class SendWeeklySummary < DCI::Context(:author, posts: RangeQuery)
   def encode_with(coder)
     coder['author_id'] = @author.id
   end
+
+  public :author
 end

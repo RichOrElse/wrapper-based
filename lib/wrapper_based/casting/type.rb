@@ -1,26 +1,26 @@
 require 'set'
 
 module WrapperBased
-  class Context::Casting
+  class Casting::Type
     attr_reader :name
 
-    def initialize(name, wrappers)
+    def initialize(name, talent_pool)
       @name = name.to_sym
       @talents = Set.new
-      @wrappers = wrappers
+      @lookup = talent_pool
     end
 
-    def as(talent)
+    def has(talent)
       @talents << talent
       self
     end
 
-    def wrapper_for(*args)
-      @wrappers[args]
+    def [](*where)
+      @lookup[where]
     end
 
     def cast_type(type)
-      wrapper_for type, *@talents
+      self[type, *@talents]
     end
 
     def typecast(actor)

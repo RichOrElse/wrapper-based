@@ -4,20 +4,20 @@ module WrapperBased
   module Context::TypeCasting
     refine Object do
       def as_role_played_by(actor)
-        actor
+        return actor
       end
     end
 
     refine NilClass do
       def as_role_played_by(actor)
-        yield
+        yield actor
       end
     end
 
     refine Delegator do
       def as_role_played_by(actor)
         return replace_role_player_with(actor) if actor.instance_of?(role_type)
-        yield
+        yield actor
       end
 
       def replace_role_player_with(actor)

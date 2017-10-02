@@ -1,86 +1,18 @@
 module WrapperBased
   class Context
-    def initialize(**where)
-      rebind where
-    end
-
-    def _casting_director_
-      @_casting_director_ ||= CastingDirector.new(self.class)
-    end
-
-    def rebind(**where)
-      where.each { |role, player| public_send :"#{role}=", player }
-      self
+    def initialize(*role_players)
+      with!(*role_players)
     end
 
     def to_proc
       method(:call).to_proc
     end
 
-    def [](*args, &block)
-      call(*args, &block)
-    end
-
-    UnassignedRole = Class.new(StandardError)
-
     class << self
       alias_method :[], :new
 
-      def call(**where)
-        new(where).call
-      end
-
-      def cast_as(role, actor)
-        send(role).typecast(actor)
-      end
-
-      protected
-
-      def cast_to(role, trait)
-        case trait
-        when ::Class
-          define_role role, &trait.method(:new)
-        when ::Proc, ::Method
-          define_role role, &trait
-        when ::Module
-          send(role).as trait
-        else
-          throw :wrong_trait_type, [role, trait, "expected Module, Class, Proc or Method"]
-        end
-      end
-
-      def define_role(role)
-        role_player = :"@#{role}"
-        define_method(:"#{role}=") do |actor|
-          instance_variable_set(role_player, actor)
-          _casting_director_[role] = yield(actor)
-        end
-        add_reader_for(role)
-      end
-
-      def add_role(role, casting)
-        add_reader_for(role)
-        add_writer_for(role)
-        add_role_to_class role, casting
-      end
-
-      def add_reader_for(role)
-        define_method(role) do
-          _casting_director_.fetch(role) { raise UnassignedRole, "Role '#{role}' is missing.", caller }
-        end
-      end
-
-      def add_writer_for(role)
-        role_player = :"@#{role}"
-        define_method(:"#{role}=") do |actor|
-          instance_variable_set(role_player, actor)
-          _casting_director_.cast_as role, actor
-        end
-      end
-
-      # TODO: Remove
-      def add_role_to_class(role, casting)
-        define_singleton_method(role) { casting }
+      def call(*role_players, &blk)
+        new(*role_players).call(&blk)
       end
     end # class methods
   end # Context class

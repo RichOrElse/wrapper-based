@@ -19,15 +19,14 @@ And then execute:
 
 ## Usage
 
-[Money Transfer](https://github.com/RichOrElse/wrapper-based/blob/master/examples/money_transfer.rb) | 
+[Money Transfer](examples/money_transfer.rb) | 
 Djikstra | 
-[Dijkstra test](https://github.com/RichOrElse/wrapper-based/blob/master/test/dijkstra_test.rb) | 
-[Toy Shop](https://github.com/RichOrElse/wrapper-based/blob/master/examples/toy_shop.rb) | 
-[Acapella](https://github.com/RichOrElse/wrapper-based/blob/master/examples/acapella.rb) | 
-[Background Job](https://github.com/RichOrElse/wrapper-based/blob/master/examples/background_job.rb) | 
-[Facade](https://github.com/RichOrElse/wrapper-based/blob/master/examples/users_facade.rb) | 
-[HTTP API Client](https://github.com/RichOrElse/wrapper-based/blob/master/examples/http_api_client.rb) | 
-[see more examples](https://github.com/RichOrElse/wrapper-based/tree/master/examples)
+[Toy Shop](examples/toy_shop.rb) | 
+[Acapella](examples/acapella.rb) | 
+[Background Job](examples/background_job.rb) | 
+[Facade](examples/users_facade.rb) | 
+[HTTP API Client](examples/http_api_client.rb) | 
+[all examples](examples)
 
 ```ruby
 module DestinationNode
@@ -92,24 +91,6 @@ Returns call method as a Proc.
 ['Card Wars', 'Ice Ninja Manual', 'Bacon'].map &GiftToy[gifter: 'Jake', giftee: 'Finn']
 ```
 
-### context[params,...]
-
-Square brackets are alias for call method.
-
-```ruby
-TransferMoney[from: source_account, to: destination_account][amount: 100]
-```
-
-### context#rebind(**params)
-Assigns object to role.
-
-```ruby
-add_member = Evaluate.new(to: 'Justice League')
-['Batman', 'Superman', 'Wonder Woman'].each do |founder|
-  add_member.rebind(member: founder).(recruit: 'Supergirl')
-end
-```
-
 ## Context class methods
 
 ### klass#call(**params)
@@ -124,22 +105,6 @@ Which is equivalent to:
 
 ```ruby
 Funds::TransferMoney.new(from: @account1, to: @account2, amount: 50).call
-```
-
-## DCI::Module
-
-Extention module for supporting procedural code. Define a block with the 'new' method and pass the 'mod' parameter to 'using' keyword.
-
-```ruby
-AwesomeSinging = DCI::Module.new do |mod| using mod
-  def sing
-    "#{name} sings #{song}"
-  end
-
-  def song
-    "Everything is AWESOME!!!"
-  end
-end
 ```
 
 ## Development
