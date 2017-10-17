@@ -18,8 +18,8 @@ class WrapperBasedTest < Minitest::Test
     @original_context = CustomContext.new(value: OLD_VALUE, extending: OLD_VALUE, transforming: OLD_VALUE)
   end
 
-  def test_cast
-    assert @original_context.send :__cast__
+  def test_components
+    assert @original_context.send :_components
   end
 
   def test_with!

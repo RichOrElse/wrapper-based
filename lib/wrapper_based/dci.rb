@@ -3,15 +3,15 @@ require "type_wrapper"
 module DCI
   Module = Class.new(TypeWrapper::Module)
 
-  @@dci_producer = WrapperBased::Context::Producer.new(TypeWrapper)
+  @@casting_pool = WrapperBased::Casting::Pool.new(TypeWrapper)
 
   class << self
     def Context(*roles, &block)
-      fail_on_wrong_talent_type { return @@dci_producer.context_for(*roles, &block) }
+      fail_on_wrong_talent_type { return @@casting_pool.context_for(*roles, &block) }
     end
 
     def Roles(*roles)
-      fail_on_wrong_talent_type { return @@dci_producer.casting_for(*roles) }
+      fail_on_wrong_talent_type { return @@casting_pool.casting_for(*roles) }
     end
 
     private
