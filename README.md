@@ -19,59 +19,13 @@ And then execute:
 
 ## DCI::Roles
 
-Includes role components to classes.
+Includes role components into classes. For each role it defines private accessor methods.
 
 ### Usage
 
+It accepts Classes that can be initialized with an argument, like so:
+
 ```ruby
-class ApplicationController
-  include DCI::Roles(:current_user, logged: SignsUser)
-
-  before_action -> { with! logged: session }
-  helper_method :logged, :current_user
-  
-  private
-
-  def authenticate_user!
-    if logged.out?
-      flash[:error] = "You must be logged in to access this section"
-      redirect_to login_url
-    else
-      with_current_user! logged.user
-    end
-  end
-end
-
-class LoginController < ApplicationController
-  include DCI::Roles(signing: SignsUser, user_params: UserParams, login: HasEncryptedPassword)
-
-  before_action -> { with! signing: session, user_params: params.require(:user) }
-  before_action -> { with! login: signing.by(user_params.login) }
-
-  def new; end
-
-  def create
-    if login.authenticate(user_params.password)
-      signing.in! login
-      redirect_to login, notice: 'Welcome, you are now logged in.'
-    else
-      flash[:danger] = 'Invalid credentials.'
-      render :new, status: :unauthorized
-    end
-  end
-end
-
-class LogoutController < ApplicationController
-  include DCI::Roles(signing: SignsUser)
-
-  before_action -> { with! signing: session }
-
-  def destroy
-    signing.out!
-    redirect_to root_url
-  end
-end
-
 class SignsUser < Struct.new(:signed)
   def in!(user)
     signed[:user_id] = user.id
@@ -106,7 +60,44 @@ class SignsUser < Struct.new(:signed)
     user.save && user if User.validate_registering(user)
   end
 end
+```
 
+Assign values using role binding methods prefixed by 'with_' and ended by an exclamation mark '!'.
+
+```ruby
+class ApplicationController
+  include DCI::Roles(:current_user, logged: SignsUser)
+
+  before_action -> { with_logged! session }
+  helper_method :current_user, :logged
+  
+  private
+
+  def authenticate_user!
+    if logged.out?
+      flash[:error] = "You must be logged in to access this section"
+      redirect_to login_url
+    else
+      with_current_user! logged.user
+    end
+  end
+end
+
+class LogoutController < ApplicationController
+  include DCI::Roles(signing: SignsUser)
+
+  before_action -> { with_signing! session }
+
+  def destroy
+    signing.out!
+    redirect_to root_url
+  end
+end
+```
+
+It also accept Modules but no procedural code allowed, meaning only call the role player object methods and avoid calling the other methods defined in the Module.
+
+```ruby
 module UserParams
   def registration
     permit(:username, :email)
@@ -121,10 +112,36 @@ module UserParams
   end
 
   def password
-    self[:password]
+    fetch(:password, '')
   end
 end
 ```
+
+Mass assign values to multiple components using 'with!' method.
+
+```ruby
+class LoginController < ApplicationController
+  include DCI::Roles(signing: SignsUser, user_params: UserParams, login: HasEncryptedPassword)
+
+  before_action -> { with! signing: session, user_params: params.require(:user) }
+  before_action -> { with! login: signing.by(user_params.login) }
+
+  def new; end
+
+  def create
+    if login.authenticate(user_params.password)
+      signing.in! login
+      redirect_to login, notice: 'Welcome, you are now logged in.'
+    else
+      flash[:danger] = 'Invalid credentials.'
+      render :new, status: :unauthorized
+    end
+  end
+end
+```
+
+A role's instance variable holds plain value (without the new behavior).
+
 
 ## DCI::Context
 
@@ -163,7 +180,7 @@ Funds::TransferMoney.new(from: @account1, to: @account2, amount: 50).call
 
 ## Context Examples
 [Money Transfer](examples/money_transfer.rb) | 
-[Djikstra](examples/djikstra.rb) | 
+[Djikstra](examples/dijkstra.rb) | 
 [Toy Shop](examples/toy_shop.rb) | 
 [Acapella](examples/acapella.rb) | 
 [Background Job](examples/background_job.rb) | 
