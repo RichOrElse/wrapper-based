@@ -17,12 +17,13 @@ module WrapperBased
       public :params
     end
 
-    def test_that_roles_are_private
+    def test_that_role_getters_and_setters_are_private
       context_private_methods = MixedContext.private_instance_methods
-      assert_includes context_private_methods, :time
-      assert_includes context_private_methods, :email
-      assert_includes context_private_methods, :triple
-      assert_includes context_private_methods, :over_nine_thousand
+      [:time, :email, :triple, :over_nine_thousand].each do |role|
+        assert_includes context_private_methods, role
+        assert_includes context_private_methods, :"#{role}="
+      end
+
     end
 
     def test_that_role_casting_methods_are_public

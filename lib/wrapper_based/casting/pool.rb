@@ -1,13 +1,13 @@
 module WrapperBased
-  class Context::Producer
+  class Casting::Pool
     def initialize(wrapper_for)
-      @talent_table = Hash.new do |cache, type_casting|
+      @talent_pool = Hash.new do |cache, type_casting|
         cache[type_casting] = wrapper_for[*type_casting]
       end
     end
 
     def casting_for(*supporting_roles, **leading_roles)
-      WrapperBased::Casting::Director.new(@talent_table).tap do |director|
+      WrapperBased::Casting::Director.new(@talent_pool).tap do |director|
         supporting_roles.each(&director)
         leading_roles.each { |role, talent| director.adds role, talent }
       end.casting
