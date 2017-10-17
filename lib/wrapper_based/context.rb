@@ -8,6 +8,10 @@ module WrapperBased
       method(:call).to_proc
     end
 
+    def call(*)
+      raise NotImplementedError, "Context must implement a call method."
+    end
+
     class << self
       alias_method :[], :new
 
