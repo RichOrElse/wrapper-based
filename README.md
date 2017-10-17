@@ -17,73 +17,129 @@ And then execute:
 
     $ bundle
 
-## Usage
+## DCI::Roles
 
-[Money Transfer](examples/money_transfer.rb) | 
-Djikstra | 
-[Toy Shop](examples/toy_shop.rb) | 
-[Acapella](examples/acapella.rb) | 
-[Background Job](examples/background_job.rb) | 
-[Facade](examples/users_facade.rb) | 
-[HTTP API Client](examples/http_api_client.rb) | 
-[all examples](examples)
+Includes role components to classes.
+
+### Usage
 
 ```ruby
-module DestinationNode
-  def shortest_path_from(node, finds_shortest)
-    return [self] if equal? node
-    finds_shortest.path from: node
-  end
-end
+class ApplicationController
+  include DCI::Roles(:current_user, logged: SignsUser)
 
-module Map
-  def distance_between(a, b)
-    @distances[Edge.new(a, b)]
-  end
-
-  def neighbors_of(node)
-    [south_neighbor_of(node), east_neighbor_of(node)].compact
-  end
-end
-
-class FindsDistance < DCI::Context(city: Map)
-  def initialize(city) super(city: city) end
-
-  def between(from, to)
-    city.distance_between(from, to)
-  end
-
-  def of(path)
-    path.each_cons(2).inject(0) { |total_distance, (to, from)| total_distance + between(from, to) }
-  end
-
-  alias_method :call, :of
-end
-
-class FindsShortest < DCI::Context(:from, to: DestinationNode, city: Map, road_distance: FindsDistance)
-  def initialize(city:, from: city.root, to: city.destination, road_distance: city) super end
-
-  def distance
-    road_distance.of path
-  end
-
-  def path(from: @from)
-    city.neighbors_of(from).map(&to_shortest_path).min_by(&road_distance) << from
-  end
-
-  def call(neighbor = @from)
-    to.shortest_path_from(neighbor, self)
-  end
-
+  before_action -> { with! logged: session }
+  helper_method :logged, :current_user
+  
   private
 
-  alias_method :to_shortest_path, :to_proc
+  def authenticate_user!
+    if logged.out?
+      flash[:error] = "You must be logged in to access this section"
+      redirect_to login_url
+    else
+      with_current_user! logged.user
+    end
+  end
+end
+
+class LoginController < ApplicationController
+  include DCI::Roles(signing: SignsUser, user_params: UserParams, login: HasEncryptedPassword)
+
+  before_action -> { with! signing: session, user_params: params.require(:user) }
+  before_action -> { with! login: signing.by(user_params.login) }
+
+  def new; end
+
+  def create
+    if login.authenticate(user_params.password)
+      signing.in! login
+      redirect_to login, notice: 'Welcome, you are now logged in.'
+    else
+      flash[:danger] = 'Invalid credentials.'
+      render :new, status: :unauthorized
+    end
+  end
+end
+
+class LogoutController < ApplicationController
+  include DCI::Roles(signing: SignsUser)
+
+  before_action -> { with! signing: session }
+
+  def destroy
+    signing.out!
+    redirect_to root_url
+  end
+end
+
+class SignsUser < Struct.new(:signed)
+  def in!(user)
+    signed[:user_id] = user.id
+  end
+
+  def out!
+    signed.delete(:user_id)
+    @user = nil
+  end
+
+  def out?
+    signed[:user_id].nil? || in?
+  end
+
+  def in?
+    !user.nil?
+  end
+
+  def user
+    @user ||= by(id: signed[:user_id])
+  end
+
+  def by(**identification)
+    User.find_by identification
+  end
+
+  def with(**credentials)
+    User.new credentials
+  end
+
+  def up!(user)
+    user.save && user if User.validate_registering(user)
+  end
+end
+
+module UserParams
+  def registration
+    permit(:username, :email)
+  end
+
+  def login
+    permit(:username, :email)
+  end
+
+  def security
+    permit(:password, :password_confirmation, :code)
+  end
+
+  def password
+    self[:password]
+  end
 end
 ```
 
-## Context methods
+## DCI::Context
 
-### context#to_proc
+### Usage
+
+```ruby
+class GiftToy < DCI::Context(:toy, gifter: Buyer, giftee: Recipient)
+  def call(toy = @toy)
+    gift = gifter.buy 
+    giftee.receive gift 
+  end
+end
+```
+
+#### Context#to_proc
 
 Returns call method as a Proc.
 
@@ -91,9 +147,7 @@ Returns call method as a Proc.
 ['Card Wars', 'Ice Ninja Manual', 'Bacon'].map &GiftToy[gifter: 'Jake', giftee: 'Finn']
 ```
 
-## Context class methods
-
-### klass#call(**params)
+#### Context::call
 
 A shortcut for instantiating the context by passing the collaborators and then executing the context call method.
 
@@ -106,6 +160,16 @@ Which is equivalent to:
 ```ruby
 Funds::TransferMoney.new(from: @account1, to: @account2, amount: 50).call
 ```
+
+## Context Examples
+[Money Transfer](examples/money_transfer.rb) | 
+[Djikstra](examples/djikstra.rb) | 
+[Toy Shop](examples/toy_shop.rb) | 
+[Acapella](examples/acapella.rb) | 
+[Background Job](examples/background_job.rb) | 
+[Facade](examples/users_facade.rb) | 
+[HTTP API Client](examples/http_api_client.rb) | 
+[all examples](examples)
 
 ## Development
 
