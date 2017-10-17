@@ -6,11 +6,14 @@ require "wrapper_based/casting/director"
 require "wrapper_based/casting/pool"
 require "wrapper_based/dci"
 require "wrapper_based/type_casting"
+require "wrapper_based/role_unknown"
 
 module WrapperBased
   def with!(**role_players)
     role_players.each { |role, player| send :"with_#{role}!", player }
     self
+  rescue NoMethodError => error
+    raise RoleUnknown.or(error)
   end
 
   private

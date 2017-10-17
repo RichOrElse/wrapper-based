@@ -26,6 +26,7 @@ class WrapperBasedTest < Minitest::Test
     assert_same @original_context, @original_context.with!(value: NEW_VALUE, extending: NEW_VALUE, transforming: NEW_VALUE)
     assert_value_role @original_context
     assert_extending_role @original_context
+    assert_unknown_role(:unknown) { @original_context.with! unknown: 'SOME-VALUE' }
   end
 
   def assert_value_role context
