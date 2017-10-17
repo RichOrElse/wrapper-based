@@ -1,5 +1,5 @@
 module WrapperBased
-  UnassignedRole = Class.new(StandardError)
+  RoleValueMissing = Class.new(StandardError)
 
   class Casting < Module
     def initialize
@@ -35,7 +35,7 @@ module WrapperBased
 
     def private_reader(role)
       define_method(role) do
-        _components.fetch(role) { raise UnassignedRole, "Role '#{role}' is missing.", caller }
+        _components.fetch(role) { raise RoleValueMissing, "Role `#{role}' is missing.", caller }
       end
 
       private role

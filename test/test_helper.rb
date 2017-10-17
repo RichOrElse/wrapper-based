@@ -12,3 +12,8 @@ def assert_not_implemented(message, &blk)
   error = assert_raises(NotImplementedError, &blk)
   assert_equal message, error.message
 end
+
+def assert_missing_role(role,&blk)
+  error = assert_raises(WrapperBased::RoleValueMissing, &blk)
+  assert_equal "Role `#{role}' is missing.", error.message
+end

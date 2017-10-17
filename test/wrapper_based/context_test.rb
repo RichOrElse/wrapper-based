@@ -10,5 +10,12 @@ module WrapperBased
         @context.call
       end
     end
+
+    def test_missing_role_value
+      @context = IncompleteContext.new
+      assert_missing_role :role do
+        @context.role
+      end
+    end
   end
 end
